@@ -1,10 +1,13 @@
 package controller;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import model.Planet;
 import model.PlanetDAO;
 import model.User;
@@ -87,10 +90,13 @@ public class Controller  {
     private TableView tableView;
     @FXML
     private Button loadDataFromDatabase;
+    @FXML
+    private TextField idField;
+
+    ResultSet rsAllEntries;
 
 
 
-    private ObservableList<String> list = FXCollections.observableArrayList("first");
 
     public void handleButtonAction(javafx.event.ActionEvent actionEvent) {
         if(actionEvent.getSource() == loginBtn) {
@@ -177,10 +183,6 @@ public class Controller  {
         Switch.switchDashboard((Stage)loginBtn.getScene().getWindow(), new dashboardStage());
     }
 
-    Connection con = null;
-    PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
-
     private void login(javafx.event.ActionEvent event) {
         String user = String.valueOf(username.getText());
         String pass = String.valueOf(password.getText());
@@ -208,7 +210,7 @@ public class Controller  {
         }
     }
 
-    //register dashboardevent
+    //register dashboard event
 
     public void register(String email, String username, String password, String passConfirm) {
 
@@ -237,85 +239,96 @@ public class Controller  {
 
         PlanetDAO planetDAO = new PlanetDAO();
         String msg = planetDAO.addPlanet((Planet) planets.get(planet.getPlanetName()));
+        updateTableFromDB();
     }
     public void delete(String planetName){
         PlanetDAO planetDAO = new PlanetDAO();
         planetDAO.deletePlanet(planetName);
+        updateTableFromDB();
     }
 
 
 
     private void loadDatafromDB() {
-        PlanetDAO planeta = new PlanetDAO();
-        planeta.loadDataToTable();
+        updateTableFromDB();
+    }
+
+    public void search() {
+        updateTableFromDB();
+    }
+
+
+    public void updateTableFromDB() {
+        PlanetDAO planetDAO = new PlanetDAO();
+
+        try {
+            rsAllEntries = planetDAO.loadTableView();
+        }
+
+        catch (NullPointerException e) {
+
+        }
+        fetchColumnList();
+        fetchRowList();
     }
 
 
 
-
-    /*
     //only fetch columns
-    private void fetColumnList() {
-
+    private void fetchColumnList() {
         try {
-            Connection connection = DriverManager.getConnection(Constant.URL + Constant.PLANET_DB, "root", "");
-            ResultSet rs = connection.createStatement().executeQuery(SQL);
+            tableView.getColumns().clear();
 
-            //SQL FOR SELECTING ALL OF CUSTOMER
-            for (int i = 0; i < rs.getMetaData().getColumnCount(); i++) {
-                //We are using non property style for making dynamic table
-                final int j = i;
-                TableColumn col = new TableColumn(rs.getMetaData().getColumnName(i + 1).toUpperCase());
-                col.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
-                    public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
-                        return new SimpleStringProperty(param.getValue().get(j).toString());
-                    }
-                });
+            if (rsAllEntries != null) {
+                //SQL FOR SELECTING ALL OF CUSTOMER
+                for (int i = 0; i < rsAllEntries.getMetaData().getColumnCount(); i++) {
+                    //We are using non property style for making dynamic table
+                    final int j = i;
+                    TableColumn col = new TableColumn(rsAllEntries.getMetaData().getColumnName(i + 1).toUpperCase());
+                    col.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
+                        public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
+                            return new SimpleStringProperty(param.getValue().get(j).toString());
+                        }
+                    });
 
-                tableView.getColumns().removeAll(col);
-                tableView.getColumns().addAll(col);
-
-                System.out.println("Column [" + i + "] ");
+                    tableView.getColumns().removeAll(col);
+                    tableView.getColumns().addAll(col);
+                }
+            } else {
 
             }
-
-        } catch (Exception e) {
-         //   System.out.println("Error " + e.getMessage());
+        } catch (SQLException e) {
 
         }
     }
+
+    ObservableList<ObservableList> data = FXCollections.observableArrayList();
 
     //fetches rows and data from the list
-    private void fetRowList() {
-        data = FXCollections.observableArrayList();
-        ResultSet rs;
+    private void fetchRowList() {
         try {
-            Connection connection = DriverManager.getConnection(Constant.URL + Constant.PLANET_DB, "root", "");
-            rs = connection.createStatement().executeQuery(SQL);
-
-            while (rs.next()) {
-                //Iterate Row
-                ObservableList row = FXCollections.observableArrayList();
-                for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                    //Iterate Column
-                    row.add(rs.getString(i));
+            data.clear();
+            if (rsAllEntries != null) {
+                while (rsAllEntries.next()) {
+                    //Iterate Row
+                    ObservableList row = FXCollections.observableArrayList();
+                    for (int i = 1; i <= rsAllEntries.getMetaData().getColumnCount(); i++) {
+                        //Iterate Column
+                        row.add(rsAllEntries.getString(i));
+                    }
+                    data.add(row);
                 }
-                System.out.println("Row [1] added " + row);
-                data.add(row);
+                //Connects table with list
+                tableView.setItems(data);
+            } else {
 
             }
-
-            tableView.setItems(data);
         } catch (SQLException ex) {
-          //  System.err.println(ex.getMessage());
+
         }
     }
 
-    public void updateTable() {
-        fetColumnList();
-        fetRowList();
-    }
-*/
+
 
 }
 

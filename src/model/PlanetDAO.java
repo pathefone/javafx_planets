@@ -13,7 +13,7 @@ import java.net.URL;
 import java.sql.*;
 import java.util.ResourceBundle;
 
-public class PlanetDAO implements Initializable {
+public class PlanetDAO{
 
     @FXML
     private TableColumn<Planet, String> planetName;
@@ -69,43 +69,25 @@ public class PlanetDAO implements Initializable {
 
     }
 
-    @Override
-            public void initialize(URL url, ResourceBundle rb) {
-        try {
-            Connection connection = DriverManager.getConnection(Constant.URL + Constant.PLANET_DB, "root", "");
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-    }
-
     ObservableList<Planet> data;
-    @FXML
-    public void loadDataToTable() {
+
+    public ResultSet loadTableView(){
+        String query2 = "SELECT * FROM planetlist";
+
+        ResultSet resultSet = null;
+        PreparedStatement preparedStatement = null;
         try {
             Connection connection = DriverManager.getConnection(Constant.URL + Constant.PLANET_DB, "root", "");
-
-             data = FXCollections.observableArrayList();
-
-            ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM planetlist");
-            while (rs.next()) {
-                data.add(new Planet(rs.getString(2), rs.getString(6), rs.getString(7), rs.getString(3), rs.getInt(4), rs.getInt(5)));
-            }
-
+            preparedStatement = connection.prepareStatement(query2);
+            resultSet = preparedStatement.executeQuery(query2);
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        planetName.setCellValueFactory(new PropertyValueFactory<>("planetName"));
-        composition.setCellValueFactory(new PropertyValueFactory<>("composition"));
-        planetType.setCellValueFactory(new PropertyValueFactory<>("planetType"));
-        satellitesCount.setCellValueFactory(new PropertyValueFactory<>("satellitesCount"));
-        surfaceTemp.setCellValueFactory(new PropertyValueFactory<>("surfaceTemperature"));
-        density.setCellValueFactory(new PropertyValueFactory<>("density"));
 
-        tableView.setItems(null);
-        tableView.setItems(data);
-
-
+        return resultSet;
     }
+
+
+
+
 }

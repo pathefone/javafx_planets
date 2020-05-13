@@ -82,10 +82,11 @@
     <property name="aspect.path.notification.shown" value="true" />
     <property name="dynamic.classpath" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/src/view" />
-    <property name="project.structure.last.edited" value="Libraries" />
+    <property name="project.structure.last.edited" value="Project" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
     <property name="recentsLimit" value="5" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -234,7 +235,7 @@
       <workItem from="1589186244534" duration="10234000" />
       <workItem from="1589236441044" duration="492000" />
       <workItem from="1589314833020" duration="4525000" />
-      <workItem from="1589358080715" duration="6495000" />
+      <workItem from="1589358080715" duration="15802000" />
     </task>
     <servers />
   </component>

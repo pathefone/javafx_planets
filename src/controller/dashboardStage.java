@@ -13,7 +13,7 @@ public class dashboardStage {
     public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("../view/dashboard.fxml"));
 
-        Scene scene = new Scene(root, 900, 600);
+        Scene scene = new Scene(root, 1100, 600);
         primaryStage.setScene(scene);
         primaryStage.setTitle("Dashboard");
         primaryStage.setResizable(false);
