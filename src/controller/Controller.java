@@ -96,8 +96,6 @@ public class Controller  {
     ResultSet rsAllEntries;
 
 
-
-
     public void handleButtonAction(javafx.event.ActionEvent actionEvent) {
         if(actionEvent.getSource() == loginBtn) {
                login(actionEvent);
@@ -143,9 +141,10 @@ public class Controller  {
         if(actionEvent.getSource() == loadDataFromDatabase) {
             loadDatafromDB();
         }
-
+        if(actionEvent.getSource() == searchButton) {
+            search(String.valueOf(planetNameField.getText()));
+        }
     }
-
 
     public void exit(MouseEvent event) {
         System.exit(0);
@@ -241,30 +240,23 @@ public class Controller  {
         String msg = planetDAO.addPlanet((Planet) planets.get(planet.getPlanetName()));
         updateTableFromDB();
     }
+
     public void delete(String planetName){
         PlanetDAO planetDAO = new PlanetDAO();
         planetDAO.deletePlanet(planetName);
         updateTableFromDB();
     }
 
-
-
     private void loadDatafromDB() {
         updateTableFromDB();
     }
 
-    public void search() {
-        updateTableFromDB();
-    }
-
-
-    public void updateTableFromDB() {
+    public void search(String planetName) {
         PlanetDAO planetDAO = new PlanetDAO();
 
         try {
-            rsAllEntries = planetDAO.loadTableView();
+            rsAllEntries = planetDAO.searchByPlanetName(planetName);
         }
-
         catch (NullPointerException e) {
 
         }
@@ -272,6 +264,17 @@ public class Controller  {
         fetchRowList();
     }
 
+    public void updateTableFromDB() {
+        PlanetDAO planetDAO = new PlanetDAO();
+
+        try {
+            rsAllEntries = planetDAO.loadTableView();
+        }
+        catch (NullPointerException e) {
+        }
+        fetchColumnList();
+        fetchRowList();
+    }
 
 
     //only fetch columns
@@ -324,10 +327,8 @@ public class Controller  {
 
             }
         } catch (SQLException ex) {
-
         }
     }
-
 
 
 }

@@ -1,20 +1,13 @@
 package model;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import utils.Constant;
-
-import java.net.URL;
 import java.sql.*;
-import java.util.ResourceBundle;
+
 
 public class PlanetDAO{
-
     @FXML
     private TableColumn<Planet, String> planetName;
     @FXML
@@ -29,6 +22,7 @@ public class PlanetDAO{
     private TableColumn<Planet, String> planetType;
     @FXML
     private TableView<Planet> tableView;
+
 
     public String addPlanet(Planet planet) {
         String query = "INSERT INTO " + Constant.PLANET_TABLE + "(name, satellitesCount, surfaceTemperature," +
@@ -69,8 +63,6 @@ public class PlanetDAO{
 
     }
 
-    ObservableList<Planet> data;
-
     public ResultSet loadTableView(){
         String query2 = "SELECT * FROM planetlist";
 
@@ -83,11 +75,22 @@ public class PlanetDAO{
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return resultSet;
     }
 
-
-
+    public ResultSet searchByPlanetName(String planetName) {
+        String query = "";
+        query = "SELECT * FROM " + Constant.PLANET_TABLE + " WHERE name LIKE '" + planetName + "'";
+        ResultSet resultSet = null;
+        try {
+            Connection connection = DriverManager.getConnection(Constant.URL + Constant.PLANET_DB, "root", "");
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            resultSet = preparedStatement.executeQuery(query);
+        }
+        catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultSet;
+    }
 
 }
