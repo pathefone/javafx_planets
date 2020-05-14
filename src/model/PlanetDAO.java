@@ -93,4 +93,55 @@ public class PlanetDAO{
         return resultSet;
     }
 
+    public void updatePlanet(String planetName, int density, int surfaceTemperature, String satelliteCount,
+                                  String composition, String planetType, int id) {
+
+        try {
+            Connection connection = DriverManager.getConnection(Constant.URL + Constant.PLANET_DB, "root", "");
+            if (planetName != "") {
+                String query1 = "UPDATE " + Constant.PLANET_TABLE + " SET name = '" + planetName + "' WHERE id = " + id;
+                System.out.println(query1);
+                   PreparedStatement preparedStatement = connection.prepareStatement(query1);
+                preparedStatement.executeUpdate();
+            }
+            if (density != 0) {
+                String query2 = "UPDATE " + Constant.PLANET_TABLE + " SET density = " + density + " WHERE id = " + id;
+                System.out.println(query2);
+                PreparedStatement preparedStatement = connection.prepareStatement(query2);
+                preparedStatement.executeUpdate();
+
+            }
+            if (surfaceTemperature != 0) {
+                String query3 = "UPDATE " + Constant.PLANET_TABLE + " SET surfaceTemperature = " + surfaceTemperature
+                        + " WHERE id = " + id;
+                System.out.println(query3);
+                PreparedStatement preparedStatement = connection.prepareStatement(query3);
+                preparedStatement.executeUpdate();
+            }
+            if (satelliteCount != "") {
+                String query4 = "UPDATE " + Constant.PLANET_TABLE + " SET satellitesCount = " + satelliteCount
+                        + " WHERE id = " + id;
+                System.out.println(query4);
+                PreparedStatement preparedStatement = connection.prepareStatement(query4);
+                preparedStatement.executeUpdate();
+            }
+            if (composition != "") {
+                String query5 = "UPDATE " + Constant.PLANET_TABLE + " SET composition = '" + composition
+                        + "' WHERE id = " + id;
+                System.out.println(query5);
+               PreparedStatement preparedStatement = connection.prepareStatement(query5);
+                preparedStatement.executeUpdate();
+            }
+            if (planetType != "") {
+                String query6 = "UPDATE " + Constant.PLANET_TABLE + " SET type = '" + planetType
+                        + "' WHERE id = " + id;
+                System.out.println(query6);
+                PreparedStatement preparedStatement = connection.prepareStatement(query6);
+                preparedStatement.executeUpdate();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -14,6 +14,7 @@ import model.User;
 import model.UserDAO;
 import utils.Validation;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.util.HashMap;
 
@@ -92,6 +93,8 @@ public class Controller  {
     private Button loadDataFromDatabase;
     @FXML
     private TextField idField;
+    @FXML
+    private Label errorDashBox;
 
     ResultSet rsAllEntries;
 
@@ -118,21 +121,27 @@ public class Controller  {
             Switch.switchLogin((Stage)logOutButton.getScene().getWindow(), new LoginStage());
         }
         if(actionEvent.getSource() == createButton) {
-            String planetName = String.valueOf(planetNameField.getText());
-            int density = Integer.parseInt(densityField.getText());
-            int surfaceTemperature = Integer.parseInt(surfaceTempField.getText());
-            String satelliteCount = satelliteCountBox.getSelectionModel().getSelectedItem().toString();
-            boolean gas = gasCheckBox.isSelected();
-            boolean liquids = liquidCheckBox.isSelected();
-            boolean metals = metalCheckBox.isSelected();
-            String composition = composition(gas, liquids, metals);
-            boolean classicalPlanet = classicalPlanetCheckBox.isSelected();
-            boolean earthAnalog = earthAnalogCheckBox.isSelected();
-            boolean hypotheticalPlanet = hypotheticalPlanetCheckBox.isSelected();
-            String planetType = planetType(classicalPlanet, earthAnalog, hypotheticalPlanet);
-            Planet planet = new Planet(planetName, composition, planetType, satelliteCount, surfaceTemperature, density);
-            create(planet);
+            try {
+                String planetName = String.valueOf(planetNameField.getText());
+                int density = Integer.parseInt(densityField.getText());
+                int surfaceTemperature = Integer.parseInt(surfaceTempField.getText());
+                String satelliteCount = satelliteCountBox.getSelectionModel().getSelectedItem().toString();
+                boolean gas = gasCheckBox.isSelected();
+                boolean liquids = liquidCheckBox.isSelected();
+                boolean metals = metalCheckBox.isSelected();
+                String composition = composition(gas, liquids, metals);
+                boolean classicalPlanet = classicalPlanetCheckBox.isSelected();
+                boolean earthAnalog = earthAnalogCheckBox.isSelected();
+                boolean hypotheticalPlanet = hypotheticalPlanetCheckBox.isSelected();
+                String planetType = planetType(classicalPlanet, earthAnalog, hypotheticalPlanet);
 
+                Planet planet = new Planet(planetName, composition, planetType, satelliteCount, surfaceTemperature, density);
+                create(planet);
+            }
+            catch (RuntimeException e) {
+                errorDashBox.setText("Insert data in all fields! \n *Planet name - String \n *Density - Integer" +
+                        " \n *Surface temperature - Integer");
+            }
         }
         if(actionEvent.getSource() == deleteButton) {
             String planetName = String.valueOf(planetNameField.getText());
@@ -143,6 +152,10 @@ public class Controller  {
         }
         if(actionEvent.getSource() == searchButton) {
             search(String.valueOf(planetNameField.getText()));
+        }
+        if(actionEvent.getSource() == updateButton) {
+            update();
+
         }
     }
 
@@ -231,13 +244,77 @@ public class Controller  {
     }
 
     public void create(Planet planet) {
+        String msg = "";
         HashMap planets = new HashMap();
         planets.put(planet.getPlanetName(), new Planet(planet.getPlanetName(), planet.getComposition(),
                 planet.getPlanetType(), planet.getSatellitesCount(),
                 planet.getSurfaceTemperature(), planet.getDensity()));
 
         PlanetDAO planetDAO = new PlanetDAO();
-        String msg = planetDAO.addPlanet((Planet) planets.get(planet.getPlanetName()));
+        msg = planetDAO.addPlanet((Planet) planets.get(planet.getPlanetName()));
+
+        if(msg.contains("added")) {
+            errorDashBox.setText("Planet successfully added!");
+        }
+        else if(msg.contains("Failed")) {
+            errorDashBox.setText("Planet failed to create!");
+        }
+
+        updateTableFromDB();
+    }
+
+    public void update() {
+        int id = 0;
+        String planetName = "";
+        int density = 0;
+        String satelliteCount = "";
+        String composition = "";
+        String planetType = "";
+        int surfaceTemperature = 0;
+        boolean gas = false;
+        boolean liquids = false;
+        boolean metals = false;
+        boolean classicalPlanet = false;
+        boolean earthAnalog = false;
+        boolean hypotheticalPlanet = false;
+
+        try {
+             gas = gasCheckBox.isSelected();
+             liquids = liquidCheckBox.isSelected();
+             metals = metalCheckBox.isSelected();
+             classicalPlanet = classicalPlanetCheckBox.isSelected();
+             earthAnalog = earthAnalogCheckBox.isSelected();
+             hypotheticalPlanet = hypotheticalPlanetCheckBox.isSelected();
+
+            composition = composition(gas, liquids, metals);
+            planetType = planetType(classicalPlanet, earthAnalog, hypotheticalPlanet);
+
+         id = Integer.parseInt(idField.getText());
+         planetName = "";
+         density = Integer.parseInt(densityField.getText());
+         surfaceTemperature = Integer.parseInt(surfaceTempField.getText());
+         satelliteCount = "";
+         
+         String planetNameCheck = String.valueOf(planetNameField.getText());
+
+            if (!planetNameCheck.equals("")) {
+                planetName = String.valueOf(planetNameField.getText());
+            }
+            if (surfaceTemperature != 0) {
+               // surfaceTemperature = Integer.parseInt(surfaceTempField.getText());
+                surfaceTemperature = Integer.parseInt(surfaceTempField.getText());
+                System.out.println(surfaceTemperature);
+            }
+            if (satelliteCountBox.getSelectionModel().getSelectedItem().toString() != null) {
+                satelliteCount = satelliteCountBox.getSelectionModel().getSelectedItem().toString();
+            }
+
+        }
+        catch (RuntimeException e) {
+
+        }
+        PlanetDAO planetDAO = new PlanetDAO();
+        planetDAO.updatePlanet(planetName,density, surfaceTemperature, satelliteCount, composition, planetType, id);
         updateTableFromDB();
     }
 
